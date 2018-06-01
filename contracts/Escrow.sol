@@ -86,7 +86,7 @@ contract Escrow is Ownable, ReentrancyGuard {
         uint256 goal,
         uint256 deadline,
         Terms terms
-    ) external payable nonReentrant() returns (uint256) {
+    ) external payable nonReentrant() {
         require(!sender.isContract() && !receiver.isContract());
         if (broker != address(0)) {
             require(!broker.isContract());
@@ -120,7 +120,6 @@ contract Escrow is Ownable, ReentrancyGuard {
             deadline, 
             terms
         );
-        return transactionId;
     }
 
     function sendFundsForTransaction(
