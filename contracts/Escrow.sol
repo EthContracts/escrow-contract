@@ -235,4 +235,10 @@ contract Escrow is Ownable, ReentrancyGuard {
         owner.transfer(earned);
         earned = 0;
     }
+
+    function() public {
+        // Do not accept ether, revert payments
+        // If you want to donate send ether to 'owner' of contract
+        revert();
+    }
 }
