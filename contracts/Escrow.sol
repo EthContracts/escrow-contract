@@ -11,6 +11,7 @@ contract Escrow is Ownable, ReentrancyGuard {
     using AddressUtils for address;
 
     uint256 internal fee = 1 finney;
+    uint256 internal minimumGoal = 1 finney;
     uint256 internal earned = 0;
 
     // Terms in case of cancel
@@ -95,6 +96,7 @@ contract Escrow is Ownable, ReentrancyGuard {
         else {
             require(msg.value == fee);
         }
+        require(goal >= minimumGoal);
         transactions.push(Transaction(
             sender,
             receiver,
