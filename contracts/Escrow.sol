@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract Escrow is Ownable {
     using SafeMath for uint256;
 
-    uint256 internal fee = 10 finney;
+    uint256 internal fee = 1 finney;
     uint256 internal earned = 0;
 
     // Terms in case of cancel
@@ -35,6 +35,7 @@ contract Escrow is Ownable {
     struct Transaction {
         address sender;
         address receiver;
+        address broker;
         uint256 goal;
         uint256 paid;
         uint256 deadline;
@@ -51,7 +52,8 @@ contract Escrow is Ownable {
     event NewTransaction(
         uint256 transactionId,
         address sender, 
-        address receiver, 
+        address receiver,
+        address broker,
         uint256 goal,
         uint256 deadline,
         Terms terms
@@ -76,14 +78,22 @@ contract Escrow is Ownable {
     function createNewTransaction(
         address sender,
         address receiver,
+        address broker,
         uint256 goal,
         uint256 deadline,
         Terms terms
     ) external payable returns (uint256) {
-        require(msg.value == fee);
+        if (broker != address(0)) {
+            require(msg.value == fee.mul(2));
+            broker.transfer(fee);
+        }
+        else {
+            require(msg.value == fee);
+        }
         transactions.push(Transaction(
             sender,
             receiver,
+            broker,
             goal,
             0,
             deadline,
@@ -92,12 +102,13 @@ contract Escrow is Ownable {
             Action.None,
             Status.Ongoing
         ));
-        earned = earned.add(msg.value);
+        earned = earned.add(fee);
         uint256 transactionId = transactions.length.sub(1);
         emit NewTransaction(
             transactionId, 
             sender, 
-            receiver, 
+            receiver,
+            broker, 
             goal, 
             deadline, 
             terms
