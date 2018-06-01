@@ -2,11 +2,13 @@ pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/AddressUtils.sol";
 import "openzeppelin-solidity/contracts/ReentrancyGuard.sol";
 
 
 contract Escrow is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
+    using AddressUtils for address;
 
     uint256 internal fee = 1 finney;
     uint256 internal earned = 0;
@@ -84,7 +86,9 @@ contract Escrow is Ownable, ReentrancyGuard {
         uint256 deadline,
         Terms terms
     ) external payable nonReentrant() returns (uint256) {
+        require(!sender.isContract() && !receiver.isContract());
         if (broker != address(0)) {
+            require(!broker.isContract());
             require(msg.value == fee.mul(2));
             broker.transfer(fee);
         }
