@@ -1,3 +1,4 @@
 .deployed
 build/
 node_modules/
+logs.txt
